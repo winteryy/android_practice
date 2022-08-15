@@ -24,6 +24,8 @@
             <option value="$PROJECT_DIR$/ch7_layout" />
             <option value="$PROJECT_DIR$/ch8_event" />
             <option value="$PROJECT_DIR$/ch9_resource" />
+            <option value="$PROJECT_DIR$/myinstagram" />
+            <option value="$PROJECT_DIR$/mymodule1" />
           </set>
         </option>
       </GradleProjectSettings>
