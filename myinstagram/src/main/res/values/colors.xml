@@ -11,4 +11,6 @@
     <color name="grey_weak">#EFEFEF</color>
     <color name="fb_blue">#1345DF</color>
     <color name="disabled_blue">#A1CCFF</color>
+    <color name="grey_text">#707070</color>
+    <color name="lapis">#0F1851</color>
 </resources>
