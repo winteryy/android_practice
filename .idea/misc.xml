@@ -37,11 +37,16 @@
         <entry key="..\:/AndroidStudioProjects/AndroidLab/ch9_resource/src/main/res/layout-land/activity_main.xml" value="0.14427083333333332" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/ch9_resource/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/drawable-v24/round_btn.xml" value="0.1855" />
+        <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/drawable/bottom_nav_account_selector.xml" value="0.158" />
+        <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/drawable/bottom_nav_active_selector.xml" value="0.158" />
+        <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/drawable/bottom_nav_home_selector.xml" value="0.158" />
+        <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/drawable/bottom_nav_search_selector.xml" value="0.158" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/drawable/ic_launcher_background.xml" value="0.186" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/drawable/input_blank.xml" value="0.1845" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/layout/activity_login.xml" value="0.264" />
-        <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/layout/activity_main.xml" value="0.17708333333333334" />
+        <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/layout/activity_main.xml" value="0.2" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/layout/activity_register.xml" value="0.27395833333333336" />
+        <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/menu/bottom_nav_main.xml" value="0.23541666666666666" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/mymodule1/src/main/res/drawable/round_button.xml" value="0.135" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/mymodule1/src/main/res/layout/activity_main.xml" value="0.27395833333333336" />
       </map>

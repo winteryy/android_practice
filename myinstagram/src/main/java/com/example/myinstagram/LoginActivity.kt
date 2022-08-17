@@ -8,18 +8,16 @@ import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.text.style.ForegroundColorSpan
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myinstagram.databinding.ActivityLoginBinding
-import com.google.firebase.auth.FirebaseAuth
 
 
 class LoginActivity : AppCompatActivity() {
-    var auth : FirebaseAuth? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        auth = FirebaseAuth.getInstance()
 
         //텍스트 색 처리
         val ssb = SpannableStringBuilder(binding.registerBtn.text)
@@ -52,17 +50,32 @@ class LoginActivity : AppCompatActivity() {
             }
         })
 
+        //로그인 처리
         binding.loginBtn.setOnClickListener {
             val userId: String = binding.userId.text.toString()
             val userPw: String = binding.userPw.text.toString()
             Log.d("ID", userId)
             Log.d("PW", userPw)
+            MyApplication.auth.signInWithEmailAndPassword(userId, userPw).addOnCompleteListener(this){
+                task ->
+                    if (task.isSuccessful){
+                        if (MyApplication.checkAuth()){
+                            MyApplication.email = userId
+                            startActivity(Intent(this, MainActivity::class.java))
+                            finish()
+                        }
+                    }else {
+                        Toast.makeText(this, "로그인 실패",
+                            Toast.LENGTH_SHORT).show()
+                    }
+            }
         }
 
-        //회원가입
+        //회원가입 처리
         binding.registerBtn.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+
     }
 
 }
