@@ -13,4 +13,5 @@
     <color name="disabled_blue">#A1CCFF</color>
     <color name="grey_text">#707070</color>
     <color name="lapis">#0F1851</color>
+    <color name="theme_color">#E91E63</color>
 </resources>
