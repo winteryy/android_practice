@@ -25,11 +25,13 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/title_line"
         android:layout_marginHorizontal="10dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:id="@+id/upload_context">
         <ImageView
             android:layout_width="140dp"
             android:layout_height="140dp"
-            android:id="@+id/added_photo" />
+            android:id="@+id/added_photo"
+            android:src="@drawable/camera_icon"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -52,7 +54,14 @@
                 android:gravity="top"
                 android:scrollbars="vertical" />
         </LinearLayout>
-
     </LinearLayout>
-
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:text="@string/upload_btn"
+        android:id="@+id/upload_btn"
+        android:layout_below="@id/upload_context"
+        android:background="@color/theme_color"
+        android:layout_marginTop="10dp"/>
 </RelativeLayout>
