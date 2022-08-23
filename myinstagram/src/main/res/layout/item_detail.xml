@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@color/white">
     <View
@@ -24,6 +25,14 @@
             android:text="User name"
             android:textStyle="bold"
             android:id="@+id/user_profile_name"/>
+        <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:menu="@menu/feed_menu"
+            android:gravity="end"
+            android:id="@+id/feed_menu"/>
+
+
     </LinearLayout>
     <View
         android:layout_width="match_parent"

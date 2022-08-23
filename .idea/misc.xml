@@ -47,6 +47,7 @@
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/layout/activity_login.xml" value="0.264" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/layout/activity_main.xml" value="0.2" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/layout/activity_register.xml" value="0.27395833333333336" />
+        <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/layout/dialog_loading.xml" value="0.20625" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/layout/fragment_account.xml" value="0.20364583333333333" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/layout/fragment_active.xml" value="0.21822916666666667" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/layout/fragment_home.xml" value="0.20364583333333333" />
@@ -54,6 +55,7 @@
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/layout/fragment_search.xml" value="0.20364583333333333" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/layout/item_detail.xml" value="0.264" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/menu/bottom_nav_main.xml" value="0.23541666666666666" />
+        <entry key="..\:/AndroidStudioProjects/AndroidLab/myinstagram/src/main/res/menu/feed_menu.xml" value="0.20625" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/mymodule1/src/main/res/drawable/round_button.xml" value="0.135" />
         <entry key="..\:/AndroidStudioProjects/AndroidLab/mymodule1/src/main/res/layout/activity_main.xml" value="0.27395833333333336" />
       </map>

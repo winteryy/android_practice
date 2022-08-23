@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,10 +16,12 @@ import com.example.myinstagram.navigation.model.ContentDTO
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.storage.FirebaseStorage
 
 class HomeFragment : Fragment() {
     var fireStore: FirebaseFirestore? = null
     var uid: String? = null
+    var fireStorage: FirebaseStorage? = null
     //더블 탭용
     var initNum = -1
     var initTime = 0L
@@ -93,6 +97,27 @@ class HomeFragment : Fragment() {
                 binding.likeButton.setImageResource(R.drawable.like_off_icon)
             }
 
+            //피드 메뉴
+            if(contentDTOs!![position].uid != uid){
+                binding.feedMenu.visibility = View.INVISIBLE
+            }else{
+                binding.feedMenu.setOnMenuItemClickListener { 
+                    when(it.itemId){
+                        R.id.action_delete -> {
+                            AlertDialog.Builder(context!!).setTitle("게시물 삭제")
+                                .setMessage("게시물을 삭제하시겠습니까?")
+                                .setPositiveButton("확인"){ dialog, i ->
+                                    deleteContent(position)
+                                }
+                                .setNegativeButton("취소", null)
+                                .create().show()
+                            true
+                        }
+                        else -> false
+                    }
+                }
+            }
+
             //내용받아오기
             binding.userProfileName.text = contentDTOs!![position].userId
             Glide.with(holder.itemView.context).load(contentDTOs!![position].imageUri).
@@ -116,6 +141,20 @@ class HomeFragment : Fragment() {
                     contentDTO.favorite[uid!!] = true
                 }
                 transaction.set(tsDoc, contentDTO)
+            }
+        }
+
+        private fun deleteContent(position: Int){
+            fireStorage = FirebaseStorage.getInstance()
+            fireStorage?.reference?.child("image/${contentDTOs[position].imageName}")
+                ?.delete()
+
+            fireStore?.collection("images")?.
+            document(contentUidList[position])?.delete()?.addOnSuccessListener {
+                Toast.makeText(
+                    context, R.string.delete_success,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

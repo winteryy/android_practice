@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.myinstagram.MyApplication.Companion.auth
 import com.example.myinstagram.databinding.ActivityAddPhotoBinding
 import com.example.myinstagram.navigation.model.ContentDTO
+import com.example.myinstagram.navigation.model.LoadingDialog
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -83,22 +84,25 @@ class AddPhotoActivity : AppCompatActivity() {
 
     //업로드
     private fun contentUpload(){
+        val loadingDialog = LoadingDialog(this@AddPhotoActivity)
+        loadingDialog.show()
         //파일명
-        var fileName = "IMAGE_" + SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()) + ".png"
+        var fileName = auth?.currentUser?.uid + "_" +
+                SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()) + ".png"
         var storageRef = storage?.reference?.child("image")?.child(fileName)
 
         storageRef?.putFile(photoUri!!)?.continueWithTask { task: Task<UploadTask.TaskSnapshot> ->
             return@continueWithTask storageRef.downloadUrl}?.addOnSuccessListener { uri->
                 var contentDTO = ContentDTO()
-
+                contentDTO.imageName = fileName
                 contentDTO.imageUri = uri.toString()
                 contentDTO.uid = auth?.currentUser?.uid
                 contentDTO.userId = auth?.currentUser?.email
                 contentDTO.explain = findViewById<EditText>(R.id.feed_text).text.toString()
                 contentDTO.timeStamp = System.currentTimeMillis()
-
             db?.collection("images")?.document()?.set(contentDTO)
                 setResult(Activity.RESULT_OK)
+                loadingDialog.dismiss()
                 Toast.makeText(this, R.string.upload_success, Toast.LENGTH_SHORT).show()
                 finish()
         }
