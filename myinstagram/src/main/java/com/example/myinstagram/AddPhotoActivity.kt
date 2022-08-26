@@ -87,8 +87,8 @@ class AddPhotoActivity : AppCompatActivity() {
         val loadingDialog = LoadingDialog(this@AddPhotoActivity)
         loadingDialog.show()
         //파일명
-        var fileName = auth?.currentUser?.uid + "_" +
-                SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()) + ".png"
+        var fileName = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()) + "_" +
+                auth?.currentUser?.uid + ".png"
         var storageRef = storage?.reference?.child("image")?.child(fileName)
 
         storageRef?.putFile(photoUri!!)?.continueWithTask { task: Task<UploadTask.TaskSnapshot> ->
@@ -100,7 +100,10 @@ class AddPhotoActivity : AppCompatActivity() {
                 contentDTO.userId = auth?.currentUser?.email
                 contentDTO.explain = findViewById<EditText>(R.id.feed_text).text.toString()
                 contentDTO.timeStamp = System.currentTimeMillis()
-            db?.collection("images")?.document()?.set(contentDTO)
+            
+            db?.collection("images")?.document("${contentDTO.uid}")?.
+            collection("feed")?.document("$fileName")?.set(contentDTO)
+
                 setResult(Activity.RESULT_OK)
                 loadingDialog.dismiss()
                 Toast.makeText(this, R.string.upload_success, Toast.LENGTH_SHORT).show()

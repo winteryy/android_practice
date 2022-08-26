@@ -10,10 +10,23 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.myinstagram.MyApplication.Companion.auth
 import com.example.myinstagram.databinding.ActivityLoginBinding
+import com.google.firebase.auth.FirebaseUser
 
 
 class LoginActivity : AppCompatActivity() {
+    override fun onStart() {
+        super.onStart()
+        moveToMain(auth?.currentUser)
+    }
+    fun moveToMain(user: FirebaseUser?){
+        if(user!=null){
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityLoginBinding.inflate(layoutInflater)

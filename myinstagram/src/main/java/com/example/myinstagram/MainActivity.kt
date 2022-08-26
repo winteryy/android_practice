@@ -7,18 +7,19 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentManager
 import com.example.myinstagram.databinding.ActivityMainBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-//        binding.theText.text = "Hello, " + "${MyApplication.email}"
 
         //네비게이션 바 아이콘 틴트 효과 제거
         binding.bottomNav.itemIconTintList=null
@@ -28,7 +29,12 @@ class MainActivity : AppCompatActivity() {
         fragmentManager.beginTransaction().add(R.id.main_content,
         HomeFragment()).commit()
 
+
         binding.bottomNav.setOnItemSelectedListener {
+            binding.barUserName.visibility = View.GONE
+            binding.barBackButton.visibility = View.GONE
+            binding.logo.visibility = View.VISIBLE
+
             when(it.itemId){
                 R.id.action_home -> {
                     fragmentManager.beginTransaction().replace(
@@ -68,8 +74,15 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.action_account -> {
-                    fragmentManager.beginTransaction().replace(
-                        R.id.main_content, AccountFragment()).commit()
+                    var accountFragment = AccountFragment()
+                    var bundle = Bundle()
+                    var uid = FirebaseAuth.getInstance().currentUser?.uid
+
+                    bundle.putString("destinationUid", uid)
+                    accountFragment.arguments = bundle
+
+                    supportFragmentManager.beginTransaction().replace(
+                        R.id.main_content, accountFragment).commit()
                     true
                 }
                 else -> false
@@ -116,4 +129,5 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton("취소", null)
             .create().show()
     }
+
 }

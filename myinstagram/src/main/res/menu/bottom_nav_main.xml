@@ -22,7 +22,7 @@
         android:title="" />
     <item
         android:id="@+id/action_account"
-        android:icon="@drawable/ic_account"
+        android:icon="@drawable/bottom_nav_account_selector"
         android:enabled="true"
         android:title="" />
 

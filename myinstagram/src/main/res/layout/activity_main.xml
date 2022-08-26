@@ -12,13 +12,38 @@
         android:layout_height="50dp"
         android:paddingVertical="5dp"
         app:contentInsetStart="0dp">
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:src="@drawable/back_icon"
+                    android:id="@+id/bar_back_button"
+                    android:layout_marginLeft="10dp"
+                    android:visibility="gone"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="UserName Text"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginLeft="20dp"
+                    android:gravity="center"
+                    android:id="@+id/bar_userName"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/logo" />
+                android:src="@drawable/logo"
+                android:id="@+id/logo"/>
         </RelativeLayout>
     </androidx.appcompat.widget.Toolbar>
     <LinearLayout
@@ -48,9 +73,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
-        app:menu="@menu/bottom_nav_main"
+        app:itemBackground="@color/white"
         app:labelVisibilityMode="unlabeled"
-        app:itemBackground="@color/white">
+        app:menu="@menu/bottom_nav_main">
 
     </com.google.android.material.bottomnavigation.BottomNavigationView>
 
