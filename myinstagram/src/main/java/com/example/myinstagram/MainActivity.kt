@@ -14,80 +14,93 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentManager
 import com.example.myinstagram.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        val fireStore = FirebaseFirestore.getInstance()
+        fireStore.collection("userInfo")
+            .document(FirebaseAuth.getInstance().currentUser?.uid!!).get().addOnSuccessListener {
+                if(it.data?.get("userName")?:null == null){
+                    startActivity(Intent(this, UserNameActivity::class.java))
+                    finish()
+                }else{
+                    val binding = ActivityMainBinding.inflate(layoutInflater)
+                    setContentView(binding.root)
 
-        //네비게이션 바 아이콘 틴트 효과 제거
-        binding.bottomNav.itemIconTintList=null
+                    //네비게이션 바 아이콘 틴트 효과 제거
+                    binding.bottomNav.itemIconTintList=null
 
-        //메인 콘텐트 부분 프래그먼트 지정
-        val fragmentManager: FragmentManager = supportFragmentManager
-        fragmentManager.beginTransaction().add(R.id.main_content,
-        HomeFragment()).commit()
+                    //메인 콘텐트 부분 프래그먼트 지정
+                    val fragmentManager: FragmentManager = supportFragmentManager
+                    fragmentManager.beginTransaction().add(R.id.main_content,
+                        HomeFragment()).commit()
 
 
-        binding.bottomNav.setOnItemSelectedListener {
-            binding.barUserName.visibility = View.GONE
-            binding.barBackButton.visibility = View.GONE
-            binding.logo.visibility = View.VISIBLE
+                    binding.bottomNav.setOnItemSelectedListener {
+                        binding.barUserName.visibility = View.GONE
+                        binding.barBackButton.visibility = View.GONE
+                        binding.logo.visibility = View.VISIBLE
 
-            when(it.itemId){
-                R.id.action_home -> {
-                    fragmentManager.beginTransaction().replace(
-                        R.id.main_content,HomeFragment()).commit()
-                    true
-                }
-                R.id.action_search -> {
-                    fragmentManager.beginTransaction().replace(
-                        R.id.main_content ,SearchFragment()).commit()
-                    true
-                }
-                R.id.action_upload -> {
-                    if(ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.READ_EXTERNAL_STORAGE) ==
-                            PackageManager.PERMISSION_GRANTED){
-                        startActivity(Intent(this, AddPhotoActivity::class.java))
-                    }else{
-                        if(ActivityCompat.shouldShowRequestPermissionRationale(
-                                this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        ) { //이전 거부 이력 있을 경우, 원래는 권한 요청 이유 설명 필요
-                            ActivityCompat.requestPermissions(
-                                this,
-                                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                                99)
-                        }else{
-                            ActivityCompat.requestPermissions(
-                            this,
-                            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                                99)
+                        when(it.itemId){
+                            R.id.action_home -> {
+                                fragmentManager.beginTransaction().replace(
+                                    R.id.main_content,HomeFragment()).commit()
+                                true
+                            }
+                            R.id.action_search -> {
+                                fragmentManager.beginTransaction().replace(
+                                    R.id.main_content ,SearchFragment()).commit()
+                                true
+                            }
+                            R.id.action_upload -> {
+                                if(ActivityCompat.checkSelfPermission(this,
+                                        Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                                    PackageManager.PERMISSION_GRANTED){
+                                    startActivity(Intent(this, AddPhotoActivity::class.java))
+                                }else{
+                                    if(ActivityCompat.shouldShowRequestPermissionRationale(
+                                            this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                                    ) { //이전 거부 이력 있을 경우, 원래는 권한 요청 이유 설명 필요
+                                        ActivityCompat.requestPermissions(
+                                            this,
+                                            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                                            99)
+                                    }else{
+                                        ActivityCompat.requestPermissions(
+                                            this,
+                                            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                                            99)
+                                    }
+                                }
+                                true
+                            }
+                            R.id.action_favorite -> {
+                                fragmentManager.beginTransaction().replace(
+                                    R.id.main_content, ActiveFragment()).commit()
+                                true
+                            }
+                            R.id.action_account -> {
+                                var accountFragment = AccountFragment()
+                                var bundle = Bundle()
+                                var uid = FirebaseAuth.getInstance().currentUser?.uid
+
+                                bundle.putString("destinationUid", uid)
+                                accountFragment.arguments = bundle
+
+                                supportFragmentManager.beginTransaction().replace(
+                                    R.id.main_content, accountFragment).commit()
+                                true
+                            }
+                            else -> false
                         }
                     }
-                    true
                 }
-                R.id.action_favorite -> {
-                    fragmentManager.beginTransaction().replace(
-                        R.id.main_content, ActiveFragment()).commit()
-                    true
-                }
-                R.id.action_account -> {
-                    var accountFragment = AccountFragment()
-                    var bundle = Bundle()
-                    var uid = FirebaseAuth.getInstance().currentUser?.uid
-
-                    bundle.putString("destinationUid", uid)
-                    accountFragment.arguments = bundle
-
-                    supportFragmentManager.beginTransaction().replace(
-                        R.id.main_content, accountFragment).commit()
-                    true
-                }
-                else -> false
             }
-        }
+
+
+
 
     }
 

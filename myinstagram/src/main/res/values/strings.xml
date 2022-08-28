@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">My Instagram</string>
-    <string name="ID">전화번호, 이메일 주소 또는 사용자 이름</string>
+    <string name="ID">이메일 주소</string>
     <string name="password">비밀번호</string>
     <string name="login">로그인</string>
     <string name="login_withFb">페이스북 계정으로 계속</string>
@@ -10,6 +10,9 @@
     <string name="signUp">계정 생성</string>
     <string name="password_restricted">비밀번호(6자 이상)</string>
     <string name="signUp_sub">가입 성공 시, 로그인 창으로 돌아갑니다.</string>
+    <string name="userName_title">계정명 설정</string>
+    <string name="userName_text">계정명(2자 이상)</string>
+    <string name="userName_register">중복확인 및 등록</string>
     <string name="upload">게시물 올리기</string>
     <string name="upload_btn">업로드</string>
     <string name="contexts">내용</string>

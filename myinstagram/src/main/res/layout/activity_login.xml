@@ -33,7 +33,7 @@
             android:hint="@string/ID"
             android:textSize="14sp"
             android:paddingHorizontal="16dp"
-            android:inputType="text"
+               android:inputType="text"
             android:id="@+id/userId"/>
         <EditText
             android:layout_width="match_parent"

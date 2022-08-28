@@ -13,9 +13,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.myinstagram.MyApplication.Companion.auth
 import com.example.myinstagram.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class LoginActivity : AppCompatActivity() {
+    var fireBase: FirebaseFirestore? = null
     override fun onStart() {
         super.onStart()
         moveToMain(auth?.currentUser)
@@ -29,6 +31,8 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        fireBase = FirebaseFirestore.getInstance()
+
         val binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

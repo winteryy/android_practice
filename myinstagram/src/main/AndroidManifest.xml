@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidLab">
         <activity
+            android:name=".UserNameActivity"
+            android:exported="false" />
+        <activity
             android:name=".AddPhotoActivity"
             android:exported="false" />
         <activity

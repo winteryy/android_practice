@@ -122,6 +122,8 @@ class AccountFragment : Fragment() {
             return contentDTOs.size
         }
     }
+
+
 //구현해야 하는 것, 해당유저 게시물 리사이클러뷰(그리드), 동적으로 주고받는 팔로우 관련 것들, 유저데이터 DTO(프로필 이미지 등),
 // 본인인지 타인인지에 따른 레이아웃이나 기능 부여(팔로우버튼 등)
 }

@@ -26,11 +26,18 @@ class AddPhotoActivity : AppCompatActivity() {
     var storage: FirebaseStorage? = null
     var photoUri: Uri? = null
     var db: FirebaseFirestore? = null
+    var userName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityAddPhotoBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        storage = FirebaseStorage.getInstance()
+        db = FirebaseFirestore.getInstance()
+        db?.collection("userInfo")
+            ?.document(auth?.currentUser?.uid!!)?.get()?.addOnSuccessListener {
+                userName = it.data?.get("userName").toString()
+            }
 
         val openGalleryLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()){
@@ -68,9 +75,6 @@ class AddPhotoActivity : AppCompatActivity() {
             openGalleryLauncher.launch(galleryIntent)
         }
 
-        storage = FirebaseStorage.getInstance()
-        db = FirebaseFirestore.getInstance()
-
         binding.uploadBtn.setOnClickListener {
             if(photoUri == null){
                 Toast.makeText(this, R.string.warn_select_image, Toast.LENGTH_SHORT).show()
@@ -97,7 +101,7 @@ class AddPhotoActivity : AppCompatActivity() {
                 contentDTO.imageName = fileName
                 contentDTO.imageUri = uri.toString()
                 contentDTO.uid = auth?.currentUser?.uid
-                contentDTO.userId = auth?.currentUser?.email
+                contentDTO.userId = userName
                 contentDTO.explain = findViewById<EditText>(R.id.feed_text).text.toString()
                 contentDTO.timeStamp = System.currentTimeMillis()
             

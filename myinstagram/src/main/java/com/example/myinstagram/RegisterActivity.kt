@@ -55,7 +55,7 @@ class RegisterActivity : AppCompatActivity() {
                         startActivity(Intent(this, LoginActivity::class.java))
                         finish()
                     }else{
-                        Toast.makeText(baseContext, "중복되거나 유효하지 않은 입력입니다.",
+                        Toast.makeText(baseContext, "중복되거나 유효하지 않은 이메일/비밀번호 입력입니다.",
                             Toast.LENGTH_SHORT).show()
                     }
             }
