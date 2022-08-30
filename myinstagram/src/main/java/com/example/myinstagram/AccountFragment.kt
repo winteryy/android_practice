@@ -1,8 +1,16 @@
 package com.example.myinstagram
 
+import android.Manifest
+import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +18,9 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +30,9 @@ import com.example.myinstagram.navigation.model.ContentDTO
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.UploadTask
 
 class AccountFragment : Fragment() {
     var fragmentView: View? = null
@@ -26,6 +40,7 @@ class AccountFragment : Fragment() {
     var uid: String? = null
     var auth: FirebaseAuth? = null
     var currentUserId: String? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,13 +79,20 @@ class AccountFragment : Fragment() {
         profileRecyclerView?.layoutManager = GridLayoutManager(requireActivity(), 3)
         profileRecyclerView?.addItemDecoration(Spacing())
 
+        
         fragmentView?.findViewById<ImageView>(R.id.account_profile_image)?.setOnClickListener {
-
+                if(ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED){
+                    val builder = makeSelectImageDialogBuilder()
+                    builder.show()
+                }else{
+                    requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
         }
-
         return fragmentView
     }
 
+    //리사이클러뷰(피드) 구성
     inner class Spacing: RecyclerView.ItemDecoration(){
         val padding = 2
 
@@ -94,12 +116,14 @@ class AccountFragment : Fragment() {
                     if(value == null){
                         return@addSnapshotListener
                     }
-                    for (snapShot in value?.documents!!){
+                    contentDTOs.clear()
+                    for (snapShot in value.documents){
                         contentDTOs.add(snapShot.toObject(ContentDTO::class.java)!!)
                     }
-
+                    contentDTOs.sortByDescending { it.timeStamp }
                     fragmentView?.findViewById<Button>(R.id.profile_button_feed)
                         ?.text = contentDTOs.size.toString() + "\n게시물"
+
                     notifyDataSetChanged()
                 }
         }
@@ -123,7 +147,63 @@ class AccountFragment : Fragment() {
         }
     }
 
+    
+    //프로필 이미지 업로드 권한 관련
+    private fun showDialogToGetPermission(context: Context) {
+        AlertDialog.Builder(context).setTitle("권한 요청")
+            .setMessage("이미지 업로드 기능을 이용하려면 저장소 권한이 필요합니다")
+            .setPositiveButton("확인") { dialog, i ->
+                val intent = Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", context.packageName, null)
+                )
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+            }
+            .setNegativeButton("취소", null)
+            .create().show()
+    }
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()){ isGranted ->
+        if(isGranted){
+            val builder = makeSelectImageDialogBuilder()
+            builder.show()
+        }else{
+            showDialogToGetPermission(requireActivity())
+        }
+    }
 
-//구현해야 하는 것, 해당유저 게시물 리사이클러뷰(그리드), 동적으로 주고받는 팔로우 관련 것들, 유저데이터 DTO(프로필 이미지 등),
-// 본인인지 타인인지에 따른 레이아웃이나 기능 부여(팔로우버튼 등)
+    //갤러리 연동
+    private val openGalleryLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()){
+            var profile_image_uri = it.data?.data
+            var storageRef = FirebaseStorage.getInstance().reference.child("userProfileImages").child(currentUserId!!)
+
+            storageRef.putFile(profile_image_uri!!).continueWithTask { task: com.google.android.gms.tasks.Task<UploadTask.TaskSnapshot> ->
+                return@continueWithTask storageRef.downloadUrl
+            }.addOnSuccessListener { uri ->
+                fireStore?.collection("userInfo")?.document(currentUserId!!)?.set(
+                    hashMapOf("profile_img" to uri.toString()), SetOptions.merge())
+            }
+    }
+    
+    //프로필 이미지 설정 다이얼로그 빌더 생성
+    private fun makeSelectImageDialogBuilder(): AlertDialog.Builder {
+        var builder : AlertDialog.Builder = AlertDialog.Builder(requireContext())
+        var optionArray: Array<String> = arrayOf("갤러리에서 선택", "기본 이미지로 변경")
+        builder.setTitle("프로필 이미지 설정").setItems(optionArray,
+            DialogInterface.OnClickListener { dialogInterface, i ->
+                when(i){
+                    0 -> {
+                        val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                        galleryIntent.type = "image/*"
+                        openGalleryLauncher.launch(galleryIntent)
+                    }
+                    1 -> {Log.d("ddd", "기본 이미지로 변경")}
+                }
+            })
+        return builder
+    }
+
+
 }

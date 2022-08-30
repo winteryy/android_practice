@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showDialogToGetPermission(context: Context){
         AlertDialog.Builder(this).setTitle("권한 요청")
-            .setMessage("업로드 기능을 이용하려면 저장소 권한이 필요합니다")
+            .setMessage("이미지 업로드 기능을 이용하려면 저장소 권한이 필요합니다")
             .setPositiveButton("확인"){ dialog, i ->
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                 Uri.fromParts("package", context.packageName, null))
