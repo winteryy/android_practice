@@ -10,7 +10,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,8 +26,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.myinstagram.navigation.model.ContentDTO
+import com.example.myinstagram.navigation.model.LoadingDialog
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
@@ -40,6 +41,7 @@ class AccountFragment : Fragment() {
     var uid: String? = null
     var auth: FirebaseAuth? = null
     var currentUserId: String? = null
+    var profileImgCheck: Int? = null
 
 
     override fun onCreateView(
@@ -51,6 +53,12 @@ class AccountFragment : Fragment() {
         fireStore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
         currentUserId = auth?.currentUser?.uid
+
+        return fragmentView
+
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         var userButton = fragmentView!!.findViewById<Button>(R.id.follow_button)
 
         //본인 페이지인지 타인 페이지인지 확인
@@ -60,6 +68,16 @@ class AccountFragment : Fragment() {
                 activity?.finish()
                 startActivity(Intent(activity, LoginActivity::class.java))
                 auth?.signOut()
+            }
+            //프로필 이미지 클릭시
+            fragmentView?.findViewById<ImageView>(R.id.account_profile_image)?.setOnClickListener {
+                if(ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED){
+                    val builder = makeSelectImageDialogBuilder()
+                    builder.show()
+                }else{
+                    requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
             }
         }else{
             userButton.text = getString(R.string.follow_button)
@@ -72,6 +90,8 @@ class AccountFragment : Fragment() {
             mainActivity.findViewById<TextView>(R.id.bar_userName).visibility = View.VISIBLE
             mainActivity.findViewById<ImageView>(R.id.bar_back_button).visibility = View.VISIBLE
             mainActivity.findViewById<ImageView>(R.id.logo).visibility = View.GONE
+
+            fragmentView?.findViewById<ImageView>(R.id.account_profile_image)?.setOnClickListener{}
         }
 
         val profileRecyclerView = fragmentView?.findViewById<RecyclerView>(R.id.profile_recycler_view)
@@ -79,17 +99,8 @@ class AccountFragment : Fragment() {
         profileRecyclerView?.layoutManager = GridLayoutManager(requireActivity(), 3)
         profileRecyclerView?.addItemDecoration(Spacing())
 
-        
-        fragmentView?.findViewById<ImageView>(R.id.account_profile_image)?.setOnClickListener {
-                if(ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED){
-                    val builder = makeSelectImageDialogBuilder()
-                    builder.show()
-                }else{
-                    requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                }
-        }
-        return fragmentView
+        updateProfileImage()
+        super.onViewCreated(view, savedInstanceState)
     }
 
     //리사이클러뷰(피드) 구성
@@ -178,19 +189,28 @@ class AccountFragment : Fragment() {
         ActivityResultContracts.StartActivityForResult()){
             var profile_image_uri = it.data?.data
             var storageRef = FirebaseStorage.getInstance().reference.child("userProfileImages").child(currentUserId!!)
-
+            val loadingDialog = LoadingDialog(requireContext())
+            loadingDialog.show()
             storageRef.putFile(profile_image_uri!!).continueWithTask { task: com.google.android.gms.tasks.Task<UploadTask.TaskSnapshot> ->
                 return@continueWithTask storageRef.downloadUrl
             }.addOnSuccessListener { uri ->
                 fireStore?.collection("userInfo")?.document(currentUserId!!)?.set(
                     hashMapOf("profile_img" to uri.toString()), SetOptions.merge())
+                updateProfileImage()
+                loadingDialog.dismiss()
             }
     }
     
     //프로필 이미지 설정 다이얼로그 빌더 생성
     private fun makeSelectImageDialogBuilder(): AlertDialog.Builder {
         var builder : AlertDialog.Builder = AlertDialog.Builder(requireContext())
-        var optionArray: Array<String> = arrayOf("갤러리에서 선택", "기본 이미지로 변경")
+        var optionArray: Array<String>
+        if (profileImgCheck==0){
+            optionArray = arrayOf("갤러리에서 선택")
+        }else{
+            optionArray = arrayOf("갤러리에서 선택", "기본 이미지로 변경")
+        }
+
         builder.setTitle("프로필 이미지 설정").setItems(optionArray,
             DialogInterface.OnClickListener { dialogInterface, i ->
                 when(i){
@@ -199,11 +219,37 @@ class AccountFragment : Fragment() {
                         galleryIntent.type = "image/*"
                         openGalleryLauncher.launch(galleryIntent)
                     }
-                    1 -> {Log.d("ddd", "기본 이미지로 변경")}
+                    1 -> {
+                        var storageRef = FirebaseStorage.getInstance().reference
+                            .child("userProfileImages").child(currentUserId!!)
+                        storageRef.delete().addOnSuccessListener {
+                            fireStore?.collection("userInfo")?.document(currentUserId!!)
+                                ?.update(hashMapOf<String, Any>("profile_img" to FieldValue.delete()))
+                                ?.addOnSuccessListener { updateProfileImage() }
+
+                        }
+                    }
                 }
             })
         return builder
     }
 
+    private fun updateProfileImage() : Unit {
+        if(activity == null){
+            return
+        }else {
+            var profile_image = fragmentView?.findViewById<ImageView>(R.id.account_profile_image)
+            fireStore?.collection("userInfo")?.document(uid!!)?.get()?.addOnSuccessListener {
+                if (it.data?.get("profile_img") == null) {
+                    profileImgCheck = 0
+                    profile_image?.setImageResource(R.drawable.user_basic)
+                } else {
+                    profileImgCheck = 1
+                    Glide.with(requireActivity()).load(it.data?.get("profile_img"))
+                        .apply(RequestOptions().centerCrop()).into(profile_image!!)
+                }
+            }
+        }
+    }
 
 }

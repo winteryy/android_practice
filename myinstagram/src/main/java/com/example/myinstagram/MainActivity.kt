@@ -47,11 +47,13 @@ class MainActivity : AppCompatActivity() {
                             R.id.action_home -> {
                                 fragmentManager.beginTransaction().replace(
                                     R.id.main_content,HomeFragment()).commit()
+                                binding.bottomNav.menu.getItem(4).isEnabled=true
                                 true
                             }
                             R.id.action_search -> {
                                 fragmentManager.beginTransaction().replace(
                                     R.id.main_content ,SearchFragment()).commit()
+                                binding.bottomNav.menu.getItem(4).isEnabled=true
                                 true
                             }
                             R.id.action_upload -> {
@@ -79,6 +81,7 @@ class MainActivity : AppCompatActivity() {
                             R.id.action_favorite -> {
                                 fragmentManager.beginTransaction().replace(
                                     R.id.main_content, ActiveFragment()).commit()
+                                binding.bottomNav.menu.getItem(4).isEnabled=true
                                 true
                             }
                             R.id.action_account -> {
@@ -91,6 +94,7 @@ class MainActivity : AppCompatActivity() {
 
                                 supportFragmentManager.beginTransaction().replace(
                                     R.id.main_content, accountFragment).commit()
+                                binding.bottomNav.menu.getItem(4).isEnabled=false
                                 true
                             }
                             else -> false
