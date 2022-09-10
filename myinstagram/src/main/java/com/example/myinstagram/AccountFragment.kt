@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.myinstagram.navigation.model.ContentDTO
+import com.example.myinstagram.navigation.model.FollowDTO
 import com.example.myinstagram.navigation.model.LoadingDialog
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -90,7 +91,9 @@ class AccountFragment : Fragment() {
             mainActivity.findViewById<TextView>(R.id.bar_userName).visibility = View.VISIBLE
             mainActivity.findViewById<ImageView>(R.id.bar_back_button).visibility = View.VISIBLE
             mainActivity.findViewById<ImageView>(R.id.logo).visibility = View.GONE
-
+            userButton?.setOnClickListener {
+                requestFollow()
+            }
             fragmentView?.findViewById<ImageView>(R.id.account_profile_image)?.setOnClickListener{}
         }
 
@@ -100,6 +103,7 @@ class AccountFragment : Fragment() {
         profileRecyclerView?.addItemDecoration(Spacing())
 
         updateProfileImage()
+        getFollowerAndFollowing()
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -247,6 +251,82 @@ class AccountFragment : Fragment() {
                     profileImgCheck = 1
                     Glide.with(requireActivity()).load(it.data?.get("profile_img"))
                         .apply(RequestOptions().centerCrop()).into(profile_image!!)
+                }
+            }
+        }
+    }
+
+    //팔로우 처리
+    private fun requestFollow(){
+        var tsDocFollowing = fireStore!!.collection("followInfo").document(currentUserId!!)
+        fireStore?.runTransaction { transaction ->
+            var followDTO = transaction.get(tsDocFollowing!!).toObject(FollowDTO::class.java)
+            if (followDTO == null){
+                followDTO = FollowDTO()
+                followDTO.followingCount = 1
+                followDTO.followings[uid!!] = true
+
+                transaction.set(tsDocFollowing, followDTO)
+                return@runTransaction
+            }
+
+            if(followDTO?.followings?.containsKey(uid)!!){
+                followDTO?.followingCount = followDTO?.followingCount!! - 1
+                followDTO?.followings!!.remove(uid)
+            }else {
+                followDTO?.followingCount = followDTO?.followingCount!! + 1
+                followDTO?.followings!![uid!!] = true
+            }
+            transaction.set(tsDocFollowing, followDTO)
+            return@runTransaction
+        }
+
+        var tsDocFollower = fireStore!!.collection("followInfo").document(uid!!)
+        fireStore?.runTransaction{  transaction ->
+            var followDTO = transaction.get(tsDocFollower!!).toObject(FollowDTO::class.java)
+            if(followDTO == null){
+                followDTO = FollowDTO()
+                followDTO!!.followerCount = 1
+                followDTO!!.followers[currentUserId!!] = true
+
+                transaction.set(tsDocFollower, followDTO!!)
+                return@runTransaction
+            }
+
+            if (followDTO!!.followers.containsKey(currentUserId!!)){
+                followDTO!!.followerCount = followDTO!!.followerCount - 1
+                followDTO!!.followers.remove(currentUserId!!)
+            }else{
+                followDTO!!.followerCount = followDTO!!.followingCount + 1
+                followDTO!!.followers[currentUserId!!] = true
+            }
+            transaction.set(tsDocFollower, followDTO!!)
+            return@runTransaction
+        }
+    }
+
+    private fun getFollowerAndFollowing(){
+        fireStore?.collection("followInfo")?.document(uid!!)?.addSnapshotListener{ docSnapShot, e ->
+            if(docSnapShot==null) return@addSnapshotListener
+
+            var followDTO = docSnapShot.toObject(FollowDTO::class.java)
+
+            if(followDTO?.followingCount != null){
+                fragmentView?.findViewById<Button>(R.id.profile_button_following)?.text =
+                    followDTO?.followingCount?.toString() + "\n팔로잉"
+            }
+            if(followDTO?.followerCount != null){
+                fragmentView?.findViewById<Button>(R.id.profile_button_follower)?.text =
+                    followDTO?.followerCount?.toString() + "\n팔로워"
+
+                if(followDTO?.followers?.containsKey(currentUserId)!!){
+                    fragmentView?.findViewById<Button>(R.id.follow_button)?.text =
+                        activity?.getString(R.string.follow_cancel_button)
+                }else{
+                    if(uid != currentUserId){
+                        fragmentView?.findViewById<Button>(R.id.follow_button)?.text =
+                            activity?.getString(R.string.follow_button)
+                    }
                 }
             }
         }

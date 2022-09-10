@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.myinstagram.databinding.FragmentHomeBinding
 import com.example.myinstagram.databinding.ItemDetailBinding
 import com.example.myinstagram.navigation.model.ContentDTO
@@ -109,6 +110,16 @@ class HomeFragment : Fragment() {
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             val binding = (holder as CustomViewHolder).binding
+
+            fireStore?.collection("userInfo")?.document(contentDTOs[position].uid!!)
+                ?.get()?.addOnSuccessListener {
+                if (it.data?.get("profile_img") == null) {
+                    binding.userProfileImage?.setImageResource(R.drawable.user_basic)
+                } else {
+                    Glide.with(requireActivity()).load(it.data?.get("profile_img"))
+                        .apply(RequestOptions().centerCrop()).into(binding.userProfileImage)
+                }
+            }
 
             binding.userProfileName.setOnClickListener {
                 if(uid==contentDTOs[position].uid) {
