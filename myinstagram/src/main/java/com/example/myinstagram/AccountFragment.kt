@@ -249,8 +249,11 @@ class AccountFragment : Fragment() {
                     profile_image?.setImageResource(R.drawable.user_basic)
                 } else {
                     profileImgCheck = 1
-                    Glide.with(requireActivity()).load(it.data?.get("profile_img"))
-                        .apply(RequestOptions().centerCrop()).into(profile_image!!)
+                    var cont = context
+                    if (cont != null && isAdded) {
+                        Glide.with(requireContext()).load(it.data?.get("profile_img"))
+                            .apply(RequestOptions().centerCrop()).into(profile_image!!)
+                    }
                 }
             }
         }
@@ -297,7 +300,7 @@ class AccountFragment : Fragment() {
                 followDTO!!.followerCount = followDTO!!.followerCount - 1
                 followDTO!!.followers.remove(currentUserId!!)
             }else{
-                followDTO!!.followerCount = followDTO!!.followingCount + 1
+                followDTO!!.followerCount = followDTO!!.followerCount + 1
                 followDTO!!.followers[currentUserId!!] = true
             }
             transaction.set(tsDocFollower, followDTO!!)

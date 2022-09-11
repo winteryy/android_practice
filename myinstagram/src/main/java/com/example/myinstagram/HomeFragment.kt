@@ -52,31 +52,23 @@ class HomeFragment : Fragment() {
         RecyclerView.Adapter<RecyclerView.ViewHolder>(){
         var contentDTOs: ArrayList<ContentDTO> = arrayListOf()
         var contentUidList: ArrayList<String> = arrayListOf()
-        var followingList: ArrayList<String> = arrayListOf("9VgIdET9YxY3DJuXSdbDv8ofBAy1",
-            "oLnQJfMK35SKIpcA3LHCC4JFs5S2")
-
+        var followingList: ArrayList<String> = arrayListOf()
         init {
-            loadFeedFromFb()
-//            for(following in followingList) {
-//                fireStore?.collection("images")?.document(following)
-//                    ?.collection("feed")?.orderBy("timeStamp", Query.Direction.DESCENDING)
-//                    ?.addSnapshotListener { result, e ->
-//                        loadFeedFromFb()
-//                    }
-//            }
-            //            fireStore?.collection("images")?.orderBy("timeStamp", Query.Direction.DESCENDING)
-//                ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-//                    contentDTOs.clear()
-//                    contentUidList.clear()
-//                    for (snapShot in querySnapshot!!.documents) {
-//                        var item = snapShot.toObject(ContentDTO::class.java)
-//                        contentDTOs.add(item!!)
-//                        contentUidList.add(snapShot.id)
-//                    }
-//                    Log.d("배열테스트1", "$contentDTOs")
-//                    notifyDataSetChanged()
-//                }
-//            Log.d("배열테스트2", "$contentDTOs")
+            fireStore?.collection("followInfo")?.document(uid!!)?.get()?.addOnSuccessListener {
+                if(it.contains("followings")) {
+                    for ((key, value) in (it.data!!["followings"] as HashMap<String, Boolean>)) {
+                        followingList.add(key)
+                    }
+                    followingList.add(uid!!)
+                    loadFeedFromFb()
+                }else{
+                    followingList.add(uid!!)
+                    loadFeedFromFb()
+                }
+            }?.addOnFailureListener {
+                followingList.add(uid!!)
+                loadFeedFromFb()
+            }
         }
 
         private fun loadFeedFromFb(){
@@ -84,11 +76,12 @@ class HomeFragment : Fragment() {
                 fireStore?.collection("images")?.document(following)
                     ?.collection("feed")?.orderBy("timeStamp", Query.Direction.DESCENDING)
                     ?.addSnapshotListener { result, e ->
-                        contentDTOs = contentDTOs.filter {
-                            it.uid != result!!.documents[0]?.get("uid")
-                        } as ArrayList<ContentDTO>
-
-                        for(document in result!!.documents){
+                        if(!result?.isEmpty!!) {
+                            contentDTOs = contentDTOs.filter {
+                                it.uid != result!!.documents[0]?.get("uid")
+                            } as ArrayList<ContentDTO>
+                        }
+                        for (document in result!!.documents) {
                             var item = document.toObject(ContentDTO::class.java)
                             contentDTOs.add(item!!)
                         }
@@ -101,7 +94,9 @@ class HomeFragment : Fragment() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             CustomViewHolder(ItemDetailBinding.inflate(LayoutInflater.from(parent.context),
-            parent, false))
+                    parent, false
+                )
+            )
         inner class CustomViewHolder(val binding: ItemDetailBinding): RecyclerView.ViewHolder(binding.root)
 
         override fun getItemCount(): Int {
@@ -116,8 +111,11 @@ class HomeFragment : Fragment() {
                 if (it.data?.get("profile_img") == null) {
                     binding.userProfileImage?.setImageResource(R.drawable.user_basic)
                 } else {
-                    Glide.with(requireActivity()).load(it.data?.get("profile_img"))
-                        .apply(RequestOptions().centerCrop()).into(binding.userProfileImage)
+                    var cont = context
+                    if (cont != null && isAdded) {
+                        Glide.with(requireContext()).load(it.data?.get("profile_img"))
+                            .apply(RequestOptions().centerCrop()).into(binding.userProfileImage)
+                    }
                 }
             }
 

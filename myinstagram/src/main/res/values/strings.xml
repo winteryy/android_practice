@@ -24,6 +24,7 @@
     <string name="follow_button">팔로우</string>
     <string name="follow_cancel_button">팔로우 취소</string>
     <string name="signOut_button">로그아웃</string>
+    <string name="search_text">검색...</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

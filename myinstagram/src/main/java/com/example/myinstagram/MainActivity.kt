@@ -103,9 +103,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-
-
-
     }
 
     //권한요청

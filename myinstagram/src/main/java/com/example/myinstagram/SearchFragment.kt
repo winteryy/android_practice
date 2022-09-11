@@ -4,56 +4,59 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.myinstagram.databinding.FragmentSearchBinding
+import com.google.firebase.firestore.FirebaseFirestore
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [SearchFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SearchFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    var fireStore: FirebaseFirestore ?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false)
+        val binding = FragmentSearchBinding.inflate(layoutInflater)
+        fireStore = FirebaseFirestore.getInstance()
+
+        binding.searchInputText.setOnEditorActionListener { textView, i, keyEvent ->
+            if(i == EditorInfo.IME_ACTION_SEARCH){
+                searchUser(binding.searchInputText.text.toString())
+                true
+            }
+            false
+        }
+        binding.searchInputButton.setOnClickListener {
+            searchUser(binding.searchInputText.text.toString())
+        }
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SearchFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SearchFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun searchUser(str: String){
+        if(str.length>=2) {
+            val userInfo = fireStore?.collection("userInfo")?.whereEqualTo("userName", str)
+            userInfo?.get()?.addOnSuccessListener {
+                var bundle = Bundle()
+                var accountFragment = AccountFragment()
+                if(it.size() == 0) {
+                    Toast.makeText(context, "일치하는 유저가 없습니다", Toast.LENGTH_SHORT).show()
+                }else if(it.size() == 1){
+                    for (user in it) {
+                        bundle.putString("destinationUid", user?.get("uid").toString())
+                        bundle.putString("userId", user?.get("userName").toString())
+                    }
+                    accountFragment.arguments = bundle
+                    (activity as MainActivity).supportFragmentManager.beginTransaction()?.replace(
+                        R.id.main_content, accountFragment)?.commit()
                 }
             }
+        }else{
+            Toast.makeText(context, "유저명을 2자 이상 입력해주세요", Toast.LENGTH_SHORT).show()
+        }
     }
 }
